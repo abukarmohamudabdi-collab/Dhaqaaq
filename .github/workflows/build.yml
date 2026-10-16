@@ -1,0 +1,35 @@
+name: Dhis APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Habee faylasha
+        run: |
+          mkdir -p app/src/main/java/so/dhaqaaq/app app/src/main/res/values app/src/main/res/drawable
+          mv app-build.gradle.kts app/build.gradle.kts
+          mv AndroidManifest.xml app/src/main/AndroidManifest.xml
+          mv strings.xml app/src/main/res/values/strings.xml
+          mv ic_launcher.xml app/src/main/res/drawable/ic_launcher.xml
+          mv MainActivity.kt Wallets.kt app/src/main/java/so/dhaqaaq/app/
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Dhis APK
+        run: gradle assembleDebug --no-daemon
+      - name: Samee Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Dhaqaaq v${{ github.run_number }}
+          files: app/build/outputs/apk/debug/app-debug.apk
